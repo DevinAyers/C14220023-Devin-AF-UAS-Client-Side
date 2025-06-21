@@ -13,16 +13,20 @@ interface Product {
 
 export default function UserDashboard() {
   const [products, setProducts] = useState<Product[]>([])
+  const [username, setUsername] = useState<string>('')
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const userData = localStorage.getItem('user')
+    const user = userData ? JSON.parse(userData) : null
 
-    if (!user.username || user.role !== 'user') {
+    if (!user?.username || user.role !== 'user') {
       router.push('/login')
       return
     }
+
+    setUsername(user.username)
 
     const fetchProducts = async () => {
       const { data, error } = await supabase.from('products').select('*')
@@ -40,8 +44,6 @@ export default function UserDashboard() {
     localStorage.removeItem('user')
     router.push('/')
   }
-
-  const username = JSON.parse(localStorage.getItem('user') || '{}').username
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -70,7 +72,7 @@ export default function UserDashboard() {
         <div className="bg-black bg-opacity-50 absolute inset-0"></div>
         <div className="relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-2 drop-shadow-md">
-            Selamat Datang, {username}
+            Selamat Datang, {username || 'Pengguna'}
           </h1>
           <p className="text-gray-300 text-lg">Lihat daftar produk yang tersedia</p>
         </div>
